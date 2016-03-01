@@ -2,8 +2,8 @@ package timaxa007.mod_spear;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
-import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 
@@ -18,6 +18,9 @@ public class ModSpear {
 
 	@Mod.Instance(MODID) public static ModSpear instance;
 
+	@SidedProxy(serverSide= "timaxa007.mod_spear.ProxyCommon" , clientSide= "timaxa007.mod_spear.ProxyClient")
+	public static ProxyCommon proxy;
+
 	public static Item item_spear;
 
 	@Mod.EventHandler
@@ -27,7 +30,8 @@ public class ModSpear {
 		GameRegistry.registerItem(item_spear, "item_spear");
 
 		EntityRegistry.registerModEntity(EntityItemThrowable.class, "EntityItemThrowable", 0, instance, 20, 1, true);
-		RenderingRegistry.registerEntityRenderingHandler(EntityItemThrowable.class, new RenderEntityItemThrowable());
+
+		proxy.preInit();
 
 	}
 
