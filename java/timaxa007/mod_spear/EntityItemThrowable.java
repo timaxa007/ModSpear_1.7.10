@@ -14,14 +14,12 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.play.server.S2BPacketChangeGameState;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants.NBT;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -40,7 +38,6 @@ public class EntityItemThrowable extends Entity implements IProjectile {
 	private int ticksInAir;
 	private double damage = 2.0D;
 	private int knockbackStrength = 0;
-	//private ItemStack item;
 
 	public EntityItemThrowable(World world) {
 		super(world);
@@ -289,7 +286,7 @@ public class EntityItemThrowable extends Entity implements IProjectile {
 							}
 
 							if (shootingEntity != null && movingobjectposition.entityHit != shootingEntity && movingobjectposition.entityHit instanceof EntityPlayer && shootingEntity instanceof EntityPlayerMP) {
-								((EntityPlayerMP)shootingEntity).playerNetServerHandler.sendPacket(new S2BPacketChangeGameState(6, 0.0F));
+								//((EntityPlayerMP)shootingEntity).playerNetServerHandler.sendPacket(new S2BPacketChangeGameState(6, 0.0F));
 							}
 						}
 
@@ -328,6 +325,7 @@ public class EntityItemThrowable extends Entity implements IProjectile {
 						idTile.onEntityCollidedWithBlock(worldObj, xTile, yTile, zTile, this);
 					}
 				}
+				onImpact(movingobjectposition);
 			}
 
 			if (getIsCritical()) {
@@ -385,10 +383,22 @@ public class EntityItemThrowable extends Entity implements IProjectile {
 		}
 	}
 
+	public void onImpact(MovingObjectPosition mop) {
+
+		if (!worldObj.isRemote/* && worldObj instanceof WorldServer*/) ModSpear.network.sendToDimension(
+				new MessageSpearPositionAndRotationClient(this, serverPosX, serverPosY, serverPosZ, rotationYaw, rotationPitch),
+				worldObj.provider.dimensionId
+				);
+		
+		if (getItemStack() != null) {
+			
+		}
+
+	}
+
 	public void writeEntityToNBT(NBTTagCompound nbt) {
 
-		if (getItemStack() != null)
-		{
+		if (getItemStack() != null) {
 			nbt.setTag("Item", getItemStack().writeToNBT(new NBTTagCompound()));
 		}
 
@@ -411,8 +421,7 @@ public class EntityItemThrowable extends Entity implements IProjectile {
 
 		ItemStack item = getDataWatcher().getWatchableObjectItemStack(10);
 
-		if (item == null || item.stackSize <= 0)
-		{
+		if (item == null || item.stackSize <= 0) {
 			setDead();
 		}
 
